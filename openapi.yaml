@@ -1,0 +1,291 @@
+openapi: 3.0.1
+info:
+  title: Swagger Petstore
+  description: ""
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: http://0.0.0.0:3000/api
+tags:
+- name: taco
+  description: Manage your tacos
+- name: order
+  description: Manage your orders
+- name: manager
+  description: Manager methods
+paths:
+  /tacos:
+    get:
+      tags:
+      - taco
+      summary: Get tacos list
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TacoShort'
+  /tacos/{id}:
+    get:
+      tags:
+      - taco
+      summary: Get taco full info
+      parameters:
+      - name: id
+        in: path
+        description: ID of Taco
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Taco'
+  /orders:
+    get:
+      tags:
+      - manager
+      security:
+      - managerAuth: []
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+    post:
+      tags:
+      - order
+      summary: Create order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+  /orders/{id}:
+    put:
+      tags:
+      - order
+      summary: Update order
+      parameters:
+      - name: id
+        in: path
+        description: ID of order
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+    delete:
+      tags:
+      - order
+      summary: Reject order
+      parameters:
+      - name: id
+        in: path
+        description: ID of order
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: successful operation
+  /orders/{id}/confirm:
+    get:
+      tags:
+      - manager
+      security:
+      - managerAuth: []
+      summary: Confirm order
+      parameters:
+      - name: id
+        in: path
+        description: ID of order
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+  /orders/{id}/complete:
+    get:
+      tags:
+      - manager
+      security:
+      - managerAuth: []
+      summary: Complete order
+      parameters:
+      - name: id
+        in: path
+        description: ID of order
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+  /manager_auth:
+    post:
+      tags:
+      - manager
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Auth'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jwt:
+                    type: string
+components:
+  securitySchemes:
+    managerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
+  schemas:
+    OrderRequest:
+      type: object
+      properties:
+        taco_id:
+          type: string
+        piquancy:
+          type: integer
+        ingredient_options:
+          type: array
+          items:
+            type: object
+            properties:
+              ingredient_group_id:
+                type: string
+              ingredient_id:
+                type: string
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        taco_id:
+          type: string
+        piquancy:
+          type: integer
+        state:
+          type: string
+          enum:
+          - new
+          - confirmed
+          - completed
+          - rejected
+        ingredient_options:
+          type: array
+          items:
+            type: object
+            properties:
+              ingredient_group_id:
+                type: string
+              ingredient_id:
+                type: string
+    TacoShort:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+    Taco:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        ingredients:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+        ingredient_groups:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              ingredients:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    price:
+                      type: number
+    Auth:
+      type: object
+      properties:
+        auth:
+          type: object
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+              format: password

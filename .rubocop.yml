@@ -1,0 +1,13 @@
+require: rubocop-rails
+
+AllCops:
+  Exclude:
+    - 'bin/bundle'
+    - 'db/schema.rb'
+
+Metrics/LineLength:
+  Max: 120
+Style/Documentation:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  Enabled: false
